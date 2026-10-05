@@ -1,0 +1,41 @@
+{
+  "manifest_version": 3,
+  "name": "BLANCHE",
+  "version": "0.1.0",
+  "description": "A modular Chromium inspection platform that exports browser-side visibility into Burp-friendly JSON.",
+  "icons": {
+    "16": "icons/emu-16.png",
+    "32": "icons/emu-32.png",
+    "48": "icons/emu-48.png",
+    "128": "icons/emu-128.png"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "devtools_page": "devtools.html",
+  "permissions": [
+    "bookmarks",
+    "storage",
+    "tabs",
+    "scripting",
+    "webNavigation",
+    "webRequest",
+    "sidePanel"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "action": {
+    "default_title": "BLANCHE",
+    "default_icon": {
+      "16": "icons/emu-16.png",
+      "32": "icons/emu-32.png",
+      "48": "icons/emu-48.png",
+      "128": "icons/emu-128.png"
+    }
+  },
+  "minimum_chrome_version": "123"
+}

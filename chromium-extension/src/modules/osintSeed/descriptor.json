@@ -1,0 +1,82 @@
+{
+  "id": "osint-seed",
+  "name": "OSINT Seed",
+  "version": "0.1.0",
+  "description": "Derive public-OSINT target seeds from the current tab and hand them to Burp for orchestration.",
+  "requiredPermissions": [
+    "storage",
+    "tabs",
+    "scripting"
+  ],
+  "requiredHostPermissions": [
+    "<all_urls>",
+    "http://blanche.invalid/*",
+    "http://127.0.0.1/*",
+    "http://localhost/*"
+  ],
+  "executionSurfaces": [
+    "background",
+    "devtools",
+    "sidepanel"
+  ],
+  "commands": [
+    {
+      "id": "seedTarget",
+      "title": "Seed OSINT From Tab",
+      "description": "Capture a public-OSINT target seed from the current tab and send it to Burp.",
+      "requiresTab": true
+    }
+  ],
+  "settingsSchema": [
+    {
+      "key": "autoSendToBurp",
+      "title": "Auto-Send To Burp",
+      "description": "POST the generated OSINT seed to the Burp-side OSINT intake endpoint.",
+      "type": "boolean",
+      "defaultValue": true
+    },
+    {
+      "key": "burpSeedUrl",
+      "title": "Burp OSINT Seed URL",
+      "description": "Proxy-visible endpoint consumed by Burp for automatic OSINT seeding.",
+      "type": "string",
+      "defaultValue": "http://blanche.invalid/osint/seed"
+    },
+    {
+      "key": "relatedHostLimit",
+      "title": "Related Host Cap",
+      "description": "Maximum distinct related hosts to preserve in the generated seed.",
+      "type": "number",
+      "defaultValue": 80
+    }
+  ],
+  "collectors": [
+    {
+      "id": "tab-seed-context",
+      "name": "Tab Seed Context Collector",
+      "description": "Collects publicly visible host and resource references from the current tab for OSINT seeding.",
+      "mode": "both",
+      "surface": "background"
+    }
+  ],
+  "exporters": [
+    {
+      "id": "osint-seed-json-v1",
+      "name": "BLANCHE OSINT Seed JSON",
+      "format": "json",
+      "schemaVersion": "1.0.0"
+    }
+  ],
+  "uiContributions": [
+    {
+      "surface": "sidepanel",
+      "title": "OSINT Seed Console",
+      "description": "Prepare Burp-side OSINT runs from the side panel."
+    },
+    {
+      "surface": "devtools",
+      "title": "OSINT Seed Console",
+      "description": "Prepare Burp-side OSINT runs against the inspected tab."
+    }
+  ]
+}

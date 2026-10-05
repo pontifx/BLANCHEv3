@@ -1,0 +1,139 @@
+{
+  "id": "document-acquisition",
+  "name": "Document Acquisition",
+  "version": "0.1.0",
+  "description": "Capture documents encountered during browsing, launch indexed document searches, and analyze acquired files for URLs, compression, and interesting keywords.",
+  "requiredPermissions": [
+    "downloads",
+    "scripting",
+    "storage",
+    "tabs",
+    "webRequest"
+  ],
+  "requiredHostPermissions": [
+    "<all_urls>"
+  ],
+  "executionSurfaces": [
+    "background",
+    "devtools",
+    "sidepanel"
+  ],
+  "commands": [
+    {
+      "id": "startSession",
+      "title": "Start Document Session",
+      "description": "Create a fresh document acquisition session and output folder.",
+      "requiresTab": false
+    },
+    {
+      "id": "launchDocumentSearches",
+      "title": "Launch Indexed Searches",
+      "description": "Open target-aware Google queries for indexed documents.",
+      "requiresTab": true
+    },
+    {
+      "id": "scanCurrentPageLinks",
+      "title": "Scan Current Page Links",
+      "description": "Discover and queue document links visible on the current page.",
+      "requiresTab": true
+    },
+    {
+      "id": "openSessionFolder",
+      "title": "Open Session Folder",
+      "description": "Reveal the most recent downloaded document for the active session.",
+      "requiresTab": false
+    },
+    {
+      "id": "downloadDocument",
+      "title": "Download Reviewed Document",
+      "description": "Download one reviewed queue item after the tester approves it.",
+      "requiresTab": false
+    },
+    {
+      "id": "clearDocuments",
+      "title": "Clear Document Inventory",
+      "description": "Clear BLANCHE document metadata and start a clean session.",
+      "requiresTab": false
+    }
+  ],
+  "settingsSchema": [
+    {
+      "key": "autoCaptureBrowsedDocuments",
+      "title": "Auto-Capture Browsed Documents",
+      "description": "Automatically fetch document bodies into memory for bounded analysis and queue them for review.",
+      "type": "boolean",
+      "defaultValue": true
+    },
+    {
+      "key": "autoDownloadDocuments",
+      "title": "Enable Rule-Based Review Queue",
+      "description": "Mark matching high-scoring documents for explicit tester download approval. Filesystem downloads never occur automatically.",
+      "type": "boolean",
+      "defaultValue": false
+    },
+    {
+      "key": "autoDownloadScoreThreshold",
+      "title": "Review Queue Score",
+      "description": "When rule-based review queuing is enabled, require at least this interest score.",
+      "type": "number",
+      "defaultValue": 60
+    },
+    {
+      "key": "downloadRuleKeywords",
+      "title": "Download Rule Keywords",
+      "description": "Only automatically download reviewed documents matching one of these keywords.",
+      "type": "string",
+      "defaultValue": "credential, secret, token, api_key, client_secret, private key, confidential, restricted"
+    },
+    {
+      "key": "maxDocumentBytes",
+      "title": "Maximum Document Bytes",
+      "description": "Skip automatic acquisition when a known Content-Length exceeds this size.",
+      "type": "number",
+      "defaultValue": 52428800
+    },
+    {
+      "key": "downloadFolderRoot",
+      "title": "Download Folder Root",
+      "description": "Downloads are saved under this folder, with a child folder per BLANCHE document session.",
+      "type": "string",
+      "defaultValue": "BLANCHE"
+    },
+    {
+      "key": "interestingKeywords",
+      "title": "Interesting Keywords",
+      "description": "Comma, semicolon, or newline separated keywords counted during document review.",
+      "type": "string",
+      "defaultValue": "password, passwd, credential, secret, token, api_key, apikey, bearer, authorization, client_secret, private key, aws_access_key_id, connection string, jdbc, ldap, saml, oauth, sso, vpn, admin, internal, confidential, restricted, staging, dev, prod, database, payroll, ssn"
+    }
+  ],
+  "collectors": [
+    {
+      "id": "document-response-observer",
+      "name": "Document Response Observer",
+      "description": "Observes document-like responses from active browsing and queues acquisition.",
+      "mode": "both",
+      "surface": "background"
+    },
+    {
+      "id": "document-link-scanner",
+      "name": "Document Link Scanner",
+      "description": "Discovers document URLs from the current page DOM.",
+      "mode": "both",
+      "surface": "background"
+    }
+  ],
+  "exporters": [],
+  "uiContributions": [
+    {
+      "surface": "sidepanel",
+      "title": "Documents",
+      "description": "Acquire and review documents encountered during browsing."
+    },
+    {
+      "surface": "devtools",
+      "title": "Documents",
+      "description": "Acquire and review documents associated with the inspected tab."
+    }
+  ]
+}

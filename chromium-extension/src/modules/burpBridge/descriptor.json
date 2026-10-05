@@ -1,0 +1,202 @@
+{
+  "id": "burp-bridge",
+  "name": "Burp Bridge",
+  "version": "0.1.0",
+  "description": "Reload a target tab, collect browser-side visibility, and export a Burp-ingestible JSON report.",
+  "requiredPermissions": [
+    "storage",
+    "tabs",
+    "scripting",
+    "webNavigation"
+  ],
+  "requiredHostPermissions": [
+    "<all_urls>",
+    "http://blanche.invalid/*",
+    "http://127.0.0.1/*",
+    "http://localhost/*"
+  ],
+  "executionSurfaces": [
+    "background",
+    "content",
+    "devtools",
+    "sidepanel"
+  ],
+  "commands": [
+    {
+      "id": "collect",
+      "title": "Collect With Reload",
+      "description": "Reload the target tab, capture a browser-side report, and export versioned JSON.",
+      "requiresTab": true
+    },
+    {
+      "id": "collectPassive",
+      "title": "Collect Passive Snapshot",
+      "description": "Capture a browser-side snapshot without reloading the page.",
+      "requiresTab": true
+    },
+    {
+      "id": "collectInstrumented",
+      "title": "Collect Full Instrumented Snapshot",
+      "description": "Reload the target and force document-start instrumentation for a comprehensive browser-side report.",
+      "requiresTab": true
+    }
+  ],
+  "settingsSchema": [
+    {
+      "key": "defaultMode",
+      "title": "Default Mode",
+      "description": "Choose the collection depth used by operator-triggered runs.",
+      "type": "select",
+      "defaultValue": "instrumented",
+      "options": [
+        {
+          "label": "Instrumented",
+          "value": "instrumented"
+        },
+        {
+          "label": "Passive",
+          "value": "passive"
+        }
+      ]
+    },
+    {
+      "key": "reloadBeforeCollect",
+      "title": "Reload Before Collect",
+      "description": "Refresh the page before gathering the browser-side report.",
+      "type": "boolean",
+      "defaultValue": true
+    },
+    {
+      "key": "autoCaptureOnNavigation",
+      "title": "Auto-Capture On Navigation",
+      "description": "Automatically run a passive collection (no reload) and send it to Burp whenever a top-level page finishes loading, without needing to click Collect.",
+      "type": "boolean",
+      "defaultValue": true
+    },
+    {
+      "key": "autoSendToBurp",
+      "title": "Auto-Send To Burp",
+      "description": "POST each completed export to the configured Burp ingestion endpoint after collection.",
+      "type": "boolean",
+      "defaultValue": true
+    },
+    {
+      "key": "burpIngestUrl",
+      "title": "Burp Ingest URL",
+      "description": "Proxy-visible endpoint consumed by the Burp extension for automatic export ingestion.",
+      "type": "string",
+      "defaultValue": "http://blanche.invalid/ingest"
+    },
+    {
+      "key": "resourceEntryLimit",
+      "title": "Resource Entry Cap",
+      "description": "Maximum performance resource entries to keep per frame.",
+      "type": "number",
+      "defaultValue": 250
+    },
+    {
+      "key": "cacheEntryLimit",
+      "title": "Cache Entry Cap",
+      "description": "Maximum Cache Storage request URLs to keep per cache.",
+      "type": "number",
+      "defaultValue": 40
+    },
+    {
+      "key": "storageValueLimit",
+      "title": "Storage Value Cap",
+      "description": "Maximum serialized characters kept for storage values.",
+      "type": "number",
+      "defaultValue": 400
+    }
+  ],
+  "collectors": [
+    {
+      "id": "page-snapshot",
+      "name": "Page Snapshot Collector",
+      "description": "Collects page, resource, storage, and runtime metadata from each frame.",
+      "mode": "both",
+      "surface": "background"
+    },
+    {
+      "id": "instrumentation-bridge",
+      "name": "Instrumentation Bridge Collector",
+      "description": "Reads document_start instrumentation events for dynamic artifacts and blob URLs.",
+      "mode": "instrumented",
+      "surface": "content"
+    },
+    {
+      "id": "frame-structure",
+      "name": "Frame Structure Collector",
+      "description": "Enumerates the known frame tree and frame URLs from Chromium.",
+      "mode": "both",
+      "surface": "background"
+    }
+  ],
+  "exporters": [
+    {
+      "id": "json-v1",
+      "name": "BLANCHE JSON Export",
+      "format": "json",
+      "schemaVersion": "1.1.0"
+    },
+    {
+      "id": "tear-sheet-json-v1",
+      "name": "BLANCHE Site Tear Sheet Evidence",
+      "format": "json",
+      "schemaVersion": "1.0.0"
+    },
+    {
+      "id": "tear-sheet-html-v1",
+      "name": "BLANCHE Stakeholder Tear Sheet",
+      "format": "html",
+      "schemaVersion": "1.0.0"
+    }
+  ],
+  "uiContributions": [
+    {
+      "surface": "sidepanel",
+      "title": "Burp Bridge Console",
+      "description": "Run export collections from the side panel."
+    },
+    {
+      "surface": "devtools",
+      "title": "Burp Bridge Console",
+      "description": "Run export collections against the inspected tab."
+    }
+  ],
+  "manifestContributions": {
+    "contentScripts": [
+      {
+        "matches": [
+          "<all_urls>"
+        ],
+        "js": [
+          "content/pageInstrumentor.js"
+        ],
+        "run_at": "document_start",
+        "all_frames": true,
+        "world": "MAIN"
+      },
+      {
+        "matches": [
+          "<all_urls>"
+        ],
+        "js": [
+          "content/bridgeContent.js"
+        ],
+        "run_at": "document_start",
+        "all_frames": true
+      }
+    ],
+    "webAccessibleResources": [
+      {
+        "resources": [
+          "content/pageInstrumentor.js"
+        ],
+        "matches": [
+          "<all_urls>"
+        ]
+      }
+    ]
+  }
+}

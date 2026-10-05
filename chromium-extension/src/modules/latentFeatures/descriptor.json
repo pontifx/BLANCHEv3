@@ -1,0 +1,158 @@
+{
+  "id": "latent-features",
+  "name": "Latent Features",
+  "version": "0.3.0",
+  "description": "Explain delivered JavaScript, discover reversible client-side feature controls, switch them ON or OFF, and highlight the virtual code and observed page changes.",
+  "requiredPermissions": [
+    "storage",
+    "tabs",
+    "scripting",
+    "webNavigation"
+  ],
+  "requiredHostPermissions": [
+    "<all_urls>"
+  ],
+  "executionSurfaces": [
+    "background",
+    "content",
+    "devtools",
+    "sidepanel"
+  ],
+  "commands": [],
+  "settingsSchema": [
+    {
+      "key": "autoDiscoverOnNavigation",
+      "title": "Auto-Discover On Navigation",
+      "description": "Run a quiet, bounded discovery pass when a top-level page finishes loading.",
+      "type": "boolean",
+      "defaultValue": true
+    },
+    {
+      "key": "probeLoadedLibraries",
+      "title": "Read Loaded Libraries",
+      "description": "Read only script URLs the page already loaded. Uses cache preference and never guesses chunk or endpoint names.",
+      "type": "boolean",
+      "defaultValue": true
+    },
+    {
+      "key": "includeThirdPartyLibraries",
+      "title": "Include Third-Party Libraries",
+      "description": "Also read already-loaded scripts from origins other than the current page. Disabled by default.",
+      "type": "boolean",
+      "defaultValue": false
+    },
+    {
+      "key": "checkDependencyAdvisories",
+      "title": "Check Public Dependency Advisories",
+      "description": "For versions found in already-loaded scripts, use cached npm metadata and OSV advisories. Uses the library throttle and worker limit.",
+      "type": "boolean",
+      "defaultValue": true
+    },
+    {
+      "key": "libraryThreadCount",
+      "title": "Library Read Thread Count",
+      "description": "Concurrent loaded-library reads. Defaults to 1 and is hard-capped at 6.",
+      "type": "number",
+      "defaultValue": 1
+    },
+    {
+      "key": "libraryDelayMs",
+      "title": "Library Read Delay (ms)",
+      "description": "Minimum spacing between loaded-library reads across all workers. Defaults to 750 ms and never drops below 100 ms.",
+      "type": "number",
+      "defaultValue": 750
+    },
+    {
+      "key": "maxLibrariesPerScan",
+      "title": "Libraries Per Scan",
+      "description": "Hard cap on already-loaded script resources read during one scan.",
+      "type": "number",
+      "defaultValue": 8
+    },
+    {
+      "key": "maxLibraryBytes",
+      "title": "Bytes Per Library",
+      "description": "Maximum source bytes retained from a loaded script before its stream is cancelled.",
+      "type": "number",
+      "defaultValue": 524288
+    },
+    {
+      "key": "maxTotalLibraryBytes",
+      "title": "Total Library Bytes",
+      "description": "Maximum combined source bytes analyzed in one discovery pass.",
+      "type": "number",
+      "defaultValue": 2097152
+    },
+    {
+      "key": "maxCandidates",
+      "title": "Candidate Cap",
+      "description": "Maximum correlated latent-feature candidates kept in the workbench.",
+      "type": "number",
+      "defaultValue": 200
+    },
+    {
+      "key": "javascriptObservationMs",
+      "title": "JavaScript Observation Window (ms)",
+      "description": "Settling time after the bounded startup reload before runtime evidence is collected. Clamped to 250 through 10000 ms.",
+      "type": "number",
+      "defaultValue": 1500
+    },
+    {
+      "key": "reloadAfterProbe",
+      "title": "Reload After Feature Switch",
+      "description": "Reload once after applying or restoring browser-storage flags so startup gates can re-evaluate and the page comparison can be observed.",
+      "type": "boolean",
+      "defaultValue": true
+    }
+  ],
+  "collectors": [
+    {
+      "id": "latent-page-signals",
+      "name": "Latent Page Signal Collector",
+      "description": "Collects bootstrap state, browser storage, inline code, DOM feature markers, and loaded script URLs.",
+      "mode": "passive",
+      "surface": "page"
+    },
+    {
+      "id": "loaded-library-reader",
+      "name": "Loaded Library Reader",
+      "description": "Throttles cache-preferred reads of script resources already observed on the page.",
+      "mode": "passive",
+      "surface": "background"
+    },
+    {
+      "id": "runtime-feature-observer",
+      "name": "Runtime Feature Observer",
+      "description": "Correlates flag-shaped values from responses already delivered to the page.",
+      "mode": "instrumented",
+      "surface": "content"
+    },
+    {
+      "id": "script-purpose-rubric",
+      "name": "Delivered JavaScript Purpose Analyzer",
+      "description": "Classifies transform, likely purpose, behavior maturity, review priority, and coverage from bounded delivered source.",
+      "mode": "passive",
+      "surface": "background"
+    },
+    {
+      "id": "javascript-startup-observation",
+      "name": "Instrumented JavaScript Startup Observation",
+      "description": "Reloads an explicitly in-scope page once and compares static claims with bounded startup observations while preserving untested stages as gaps.",
+      "mode": "instrumented",
+      "surface": "background"
+    }
+  ],
+  "exporters": [],
+  "uiContributions": [
+    {
+      "surface": "sidepanel",
+      "title": "Feature Switchboard and JavaScript Workbench",
+      "description": "Discover reversible controls from delivered JavaScript and storage, switch multiple flags ON or OFF, inspect virtual code and observed page diffs, then Restore All."
+    },
+    {
+      "surface": "devtools",
+      "title": "Feature Switchboard and JavaScript Workbench",
+      "description": "Discover reversible controls from delivered JavaScript and storage, switch multiple flags ON or OFF, inspect virtual code and observed page diffs, then Restore All."
+    }
+  ]
+}
